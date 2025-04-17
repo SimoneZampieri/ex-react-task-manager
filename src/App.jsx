@@ -8,12 +8,12 @@ function App() {
   return (
     <GlobalProvider>
       <BrowserRouter>
-        <DefLayout>
-          <Routes>
+        <Routes>
+          <Route element={<DefLayout />}>
             <Route path="/" element={<TaskList />} />
             <Route path="/add" element={<AddTask />} />
-          </Routes>
-        </DefLayout>
+          </Route>
+        </Routes>
       </BrowserRouter>
     </GlobalProvider>
   );
