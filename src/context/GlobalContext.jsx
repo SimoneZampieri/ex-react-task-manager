@@ -1,9 +1,31 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 
-//creo il context
 export const GlobalContext = createContext();
 
-//creo il provider
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const GlobalProvider = ({ children }) => {
-  return <GlobalContext.Provider value={{}}>{children}</GlobalContext.Provider>;
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    fetch(`${apiUrl}/tasks`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Task acquisita:", data);
+        setTasks(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  const value = {
+    tasks,
+    setTasks,
+    apiUrl,
+  };
+
+  return (
+    <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
+  );
 };
+
+export const useGlobalContext = () => useContext(GlobalContext);
