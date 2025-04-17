@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useState, useEffect } from "react";
 
 //creo il context
 export const GlobalContext = createContext();
