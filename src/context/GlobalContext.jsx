@@ -4,7 +4,7 @@ import UseTasks from "../hooks/UseTasks";
 export const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
-  const [tasks, addTask, deleteTask, updateTask] = UseTasks();
+  const { tasks, addTask, deleteTask, updateTask } = UseTasks();
 
   const value = {
     tasks,

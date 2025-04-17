@@ -18,8 +18,26 @@ export default function useTasks() {
     }
   };
 
-  const addTask = () => {
-    //vuoto per il momento
+  const addTask = async (taskData) => {
+    try {
+      const response = await fetch(`${apiUrl}/tasks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(taskData),
+      });
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setTasks((prev) => [...prev, data.task]);
+      return data.task;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const updateTask = () => {
@@ -30,5 +48,5 @@ export default function useTasks() {
     //vuoto per il momento
   };
 
-  return [tasks, addTask, updateTask, deleteTask];
+  return { tasks, addTask, updateTask, deleteTask };
 }

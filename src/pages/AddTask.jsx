@@ -1,10 +1,14 @@
 import React, { useState, useRef } from "react";
+import { useGlobalContext } from "../context/GlobalContext";
+import { useNavigate } from "react-router-dom";
 
 const AddTask = () => {
   const [title, setTitle] = useState("");
   const [titleError, setTitleError] = useState("");
   const descriptionRef = useRef();
   const statusRef = useRef();
+  const { addTask } = useGlobalContext();
+  const navigate = useNavigate();
 
   const symbols = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/`~";
 
@@ -14,25 +18,34 @@ const AddTask = () => {
       return false;
     }
     if ([...value].some((char) => symbols.includes(char))) {
-      setTitleError("Il titolo non può contenere simboli speciali");
+      setTitleError("Il titolo non può contenere caratteri speciali");
       return false;
     }
     setTitleError("");
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateTitle(title)) return;
 
     const newTask = {
       title: title.trim(),
-      description: descriptionRef.current.value.trim(),
+      description: descriptionRef.current.value,
       status: statusRef.current.value,
     };
 
-    console.log(newTask);
+    try {
+      await addTask(newTask);
+      alert("Task creata con successo!");
+      setTitle("");
+      descriptionRef.current.value = "";
+      statusRef.current.value = "To do";
+      navigate("/");
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
