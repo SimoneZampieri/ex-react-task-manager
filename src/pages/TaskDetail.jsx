@@ -1,11 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/GlobalContext";
+import Modal from "../components/Modal";
+import { useState } from "react";
 
 const TaskDetail = () => {
   const { tasks, deleteTask } = useGlobalContext();
   const { id } = useParams();
   const task = tasks.find((task) => task.id === parseInt(id));
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
 
   if (!task) {
     return <div className="p-4">Task non trovata</div>;
@@ -45,11 +48,22 @@ const TaskDetail = () => {
         </div>
         <button
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-          onClick={handleDelete}
+          onClick={() => setShowModal(true)}
         >
           Elimina Task
         </button>
       </div>
+      <Modal
+        show={showModal}
+        title="Conferma Eliminazione"
+        content="Sei sicuro? La task sarà eliminata per sempre"
+        onClose={() => setShowModal(false)}
+        onConfirm={() => {
+          setShowModal(false);
+          handleDelete();
+        }}
+        confirmText="Elimina"
+      />
     </div>
   );
 };
