@@ -1,29 +1,29 @@
-import { memo } from "react";
+import { Link } from "react-router-dom";
+import React from "react";
 
-const TaskRow = ({ task }) => {
-  const { title, status, createdAt } = task;
+const TaskRow = React.memo(({ task }) => {
+  const color = {
+    "To do": "bg-red-200",
+    Doing: "bg-yellow-200",
+    Done: "bg-green-200",
+  };
 
   return (
-    <tr className="border-b hover:bg-gray-50">
-      <td className="px-6 py-4">{title}</td>
+    <tr>
       <td className="px-6 py-4">
-        <span
-          className={`px-2 py-1 rounded text-sm ${
-            status === "To do"
-              ? "bg-red-200 text-red-600"
-              : status === "Doing"
-              ? "bg-yellow-200 text-yellow-600"
-              : "bg-green-200 text-green-600"
-          }`}
+        <Link
+          to={`/task/${task.id}`}
+          className="text-blue-600 hover:underline cursor-pointer"
         >
-          {status}
-        </span>
+          {task.title}
+        </Link>
       </td>
-      <td className="px-6 py-4 text-gray-600">
-        {new Date(createdAt).toLocaleDateString()}
+      <td className={`px-6 py-4 ${color[task.status]}`}>{task.status}</td>
+      <td className="px-6 py-4">
+        {new Date(task.createdAt).toLocaleDateString()}
       </td>
     </tr>
   );
-};
+});
 
-export default memo(TaskRow);
+export default TaskRow;

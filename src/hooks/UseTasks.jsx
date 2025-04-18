@@ -44,8 +44,10 @@ export default function useTasks() {
     //vuoto per il momento
   };
 
-  const deleteTask = () => {
-    //vuoto per il momento
+  const deleteTask = async () => {
+     try{
+      const respo
+     }
   };
 
   return { tasks, addTask, updateTask, deleteTask };
