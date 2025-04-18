@@ -40,8 +40,32 @@ export default function useTasks() {
     }
   };
 
-  const updateTask = () => {
-    //vuoto per il momento
+  const updateTask = async (updatedTask) => {
+    try {
+      const response = await fetch(`${apiUrl}/tasks/${updatedTask.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: updatedTask.title,
+          description: updatedTask.description,
+          status: updatedTask.status
+        }),
+      });
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      setTasks(prev => prev.map(task => 
+        task.id === updatedTask.id ? data.task : task
+      ));
+      return data.task;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const deleteTask = async (id) => {
@@ -50,11 +74,11 @@ export default function useTasks() {
         method: "DELETE",
       });
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.message);
       }
-      
+
       setTasks((prev) => prev.filter((task) => task.id !== id));
     } catch (error) {
       throw error;

@@ -1,14 +1,16 @@
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/GlobalContext";
 import Modal from "../components/Modal";
-import { useState } from "react";
+import EditTaskModal from "../components/EditTaskModal";
 
 const TaskDetail = () => {
-  const { tasks, deleteTask } = useGlobalContext();
   const { id } = useParams();
-  const task = tasks.find((task) => task.id === parseInt(id));
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
+  const { tasks, deleteTask, updateTask } = useGlobalContext();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const task = tasks.find((t) => t.id === parseInt(id));
 
   if (!task) {
     return <div className="p-4">Task non trovata</div>;
@@ -17,10 +19,23 @@ const TaskDetail = () => {
   const handleDelete = async () => {
     try {
       await deleteTask(parseInt(id));
-      alert("Task eliminata con successo");
+      alert("Task eliminata con successo!");
       navigate("/");
     } catch (error) {
-      console.error(error);
+      alert(error.message);
+    }
+  };
+
+  const handleUpdate = async (updatedTask) => {
+    try {
+      await updateTask({
+        ...updatedTask,
+        id: parseInt(id),
+      });
+      alert("Task aggiornata con successo!");
+      setShowEditModal(false);
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -46,23 +61,39 @@ const TaskDetail = () => {
             {new Date(task.createdAt).toLocaleDateString()}
           </p>
         </div>
-        <button
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-          onClick={() => setShowModal(true)}
-        >
-          Elimina Task
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Modifica Task
+          </button>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Elimina Task
+          </button>
+        </div>
       </div>
+
       <Modal
-        show={showModal}
+        show={showDeleteModal}
         title="Conferma Eliminazione"
-        content="Sei sicuro? La task sarà eliminata per sempre"
-        onClose={() => setShowModal(false)}
+        content="Sei sicuro di voler eliminare questa task?"
+        onClose={() => setShowDeleteModal(false)}
         onConfirm={() => {
-          setShowModal(false);
+          setShowDeleteModal(false);
           handleDelete();
         }}
         confirmText="Elimina"
+      />
+
+      <EditTaskModal
+        show={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        task={task}
+        onSave={handleUpdate}
       />
     </div>
   );
