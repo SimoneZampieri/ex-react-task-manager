@@ -50,7 +50,7 @@ export default function useTasks() {
         body: JSON.stringify({
           title: updatedTask.title,
           description: updatedTask.description,
-          status: updatedTask.status
+          status: updatedTask.status,
         }),
       });
       const data = await response.json();
@@ -59,9 +59,9 @@ export default function useTasks() {
         throw new Error(data.message);
       }
 
-      setTasks(prev => prev.map(task => 
-        task.id === updatedTask.id ? data.task : task
-      ));
+      setTasks((prev) =>
+        prev.map((task) => (task.id === updatedTask.id ? data.task : task))
+      );
       return data.task;
     } catch (error) {
       throw error;
@@ -85,5 +85,26 @@ export default function useTasks() {
     }
   };
 
-  return { tasks, addTask, updateTask, deleteTask };
+  const removeMultipleTasks = async (taskIds) => {
+    try {
+      const deletePromises = taskIds.map((id) =>
+        fetch(`${apiUrl}/tasks/${id}`, {
+          method: "DELETE",
+        }).then((res) => res.json())
+      );
+
+      const results = await Promise.all(deletePromises);
+
+      const hasErrors = results.some((result) => !result.success);
+      if (hasErrors) {
+        throw new Error("Failed to delete one or more tasks");
+      }
+
+      setTasks((prev) => prev.filter((task) => !taskIds.includes(task.id)));
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return { tasks, addTask, updateTask, deleteTask, removeMultipleTasks };
 }

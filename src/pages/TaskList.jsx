@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { useGlobalContext } from "../context/GlobalContext";
 import TaskRow from "../components/TaskRow";
-import useDebounce from "../hooks/useDebounce"; // Fix the import
+import useDebounce from "../hooks/useDebounce";
 
 const TaskList = () => {
-  const { tasks } = useGlobalContext();
+  const { tasks, removeMultipleTasks } = useGlobalContext();
   const [sortBy, setSortBy] = useState("title");
   const [sortOrder, setSortOrder] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTaskIds, setSelectedTaskIds] = useState([]);
 
   const handleSearch = useDebounce((value) => {
     setSearchQuery(value.toLowerCase());
@@ -19,6 +20,24 @@ const TaskList = () => {
     } else {
       setSortBy(column);
       setSortOrder(1);
+    }
+  };
+
+  const toggleSelection = (taskId) => {
+    setSelectedTaskIds(prev => 
+      prev.includes(taskId) 
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    );
+  };
+
+  const handleMultipleDelete = async () => {
+    try {
+      await removeMultipleTasks(selectedTaskIds);
+      alert("Tasks eliminati con successo!");
+      setSelectedTaskIds([]);
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -49,6 +68,16 @@ const TaskList = () => {
           className="w-full p-2 border rounded"
         />
       </div>
+      {selectedTaskIds.length > 0 && (
+        <div className="mb-4">
+          <button
+            onClick={handleMultipleDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Elimina Selezionate ({selectedTaskIds.length})
+          </button>
+        </div>
+      )}
       <h2 className="text-2xl font-bold mb-4">Lista delle Task</h2>
       <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead className="bg-gray-100">
@@ -76,7 +105,12 @@ const TaskList = () => {
         </thead>
         <tbody>
           {sortedAndFilteredTasks.map((task) => (
-            <TaskRow key={task.id} task={task} />
+            <TaskRow 
+              key={task.id} 
+              task={task} 
+              checked={selectedTaskIds.includes(task.id)}
+              onToggle={toggleSelection}
+            />
           ))}
         </tbody>
       </table>
