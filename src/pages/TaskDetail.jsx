@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/GlobalContext";
 import Modal from "../components/Modal";
 import EditTaskModal from "../components/EditTaskModal";
+import dayjs from "dayjs";
 
 const TaskDetail = () => {
   const { id } = useParams();
@@ -58,7 +59,7 @@ const TaskDetail = () => {
         <div className="mb-4">
           <h3 className="text-gray-600">Data di Creazione</h3>
           <p className="text-xl">
-            {new Date(task.createdAt).toLocaleDateString()}
+            {dayjs(task.createdAt).format("DD/MM/YYYY HH:mm")}
           </p>
         </div>
         <div className="flex gap-2">

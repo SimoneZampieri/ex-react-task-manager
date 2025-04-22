@@ -1,21 +1,33 @@
-import { useState, useEffect } from "react";
+import { useEffect, useReducer } from "react";
+import { TaskReducer } from "./TaskReducer";
+import dayjs from "dayjs";
 
 export default function useTasks() {
-  const [tasks, setTasks] = useState([]);
+  // Utilizzo del reducer per gestire lo stato dei task
+  const [tasks, dispatch] = useReducer(TaskReducer, []);
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
+  // Funzione per recuperare i task dal server
   const fetchTasks = async () => {
     try {
       const response = await fetch(`${apiUrl}/tasks`);
       const data = await response.json();
-      setTasks(data);
+      dispatch({ type: "LOAD_TASKS", payload: data });
     } catch (error) {
       console.error(error);
     }
+  };
+  // Verifica se esiste già un task con lo stesso titolo
+  const checkDUplicateTitle = (title, excludeId = null) => {
+    return tasks.some(
+      (task) =>
+        task.title.toLowerCase() === title.toLowerCase() &&
+        task.id !== excludeId
+    );
   };
 
   const addTask = async (taskData) => {
@@ -33,7 +45,7 @@ export default function useTasks() {
         throw new Error(data.message);
       }
 
-      setTasks((prev) => [...prev, data.task]);
+      dispatch({ type: "ADD_TASK", payload: data.task });
       return data.task;
     } catch (error) {
       throw error;
@@ -59,9 +71,7 @@ export default function useTasks() {
         throw new Error(data.message);
       }
 
-      setTasks((prev) =>
-        prev.map((task) => (task.id === updatedTask.id ? data.task : task))
-      );
+      dispatch({ type: "UPDATE_TASK", payload: data.task });
       return data.task;
     } catch (error) {
       throw error;
@@ -79,7 +89,7 @@ export default function useTasks() {
         throw new Error(data.message);
       }
 
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      dispatch({ type: "DELETE_TASK", payload: id });
     } catch (error) {
       throw error;
     }
@@ -100,7 +110,7 @@ export default function useTasks() {
         throw new Error("Failed to delete one or more tasks");
       }
 
-      setTasks((prev) => prev.filter((task) => !taskIds.includes(task.id)));
+      dispatch({ type: "REMOVE_MULTIPLE_TASKS", payload: taskIds });
     } catch (error) {
       throw error;
     }
