@@ -2,6 +2,12 @@ import { useState, useRef } from "react";
 import React from "react";
 import Modal from "./Modal";
 
+// Componente EditTaskModal: consente di modificare i dettagli di un task esistente.
+// Props:
+// - show: booleano che determina se il modal è visibile o meno.
+// - onClose: funzione chiamata per chiudere il modal.
+// - task: oggetto che rappresenta il task da modificare.
+// - onSave: funzione chiamata per salvare le modifiche al task.
 const EditTaskModal = ({ show, onClose, task, onSave }) => {
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
